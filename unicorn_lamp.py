@@ -183,7 +183,7 @@ def build_bridge(driver):
             )
         )
 
-    return bridge
+    return bridge, lamp
 
 
 def main():
@@ -191,7 +191,15 @@ def main():
         port=51826,
         persist_file="/var/lib/unicorn-lamp/accessory.state",
     )
-    driver.add_accessory(accessory=build_bridge(driver))
+    bridge, lamp = build_bridge(driver)
+    driver.add_accessory(accessory=bridge)
+
+    # Power on to the Diamond Ore preset every time this starts -- i.e.
+    # on every boot, since systemd launches this fresh each time.
+    # Overrides whatever the last-persisted color was.
+    hue, sat, bri = SCENES["Diamond Ore"]
+    lamp.apply_scene(hue, sat, bri)
+
     signal.signal(signal.SIGTERM, driver.signal_handler)
     driver.start()
 

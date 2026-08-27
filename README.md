@@ -130,5 +130,11 @@ in the Home app after an edit, remove the bridge from Home and re-pair.
 - If you have the smaller Unicorn **pHAT** instead of the full HAT,
   uncomment the `unicorn.set_layout(unicorn.PHAT)` line near the top of
   `unicorn_lamp.py`.
+- The lamp powers on to the **Diamond Ore** preset every time the
+  service starts (which happens on every boot, since the systemd unit
+  is enabled) — regardless of whatever color it was last showing before
+  shutdown. To default to a different ore on boot instead, change which
+  `SCENES` key `main()` applies at startup in `unicorn_lamp.py`.
 - State (on/off, last color) persists across reboots via
-  `/var/lib/unicorn-lamp/accessory.state`.
+  `/var/lib/unicorn-lamp/accessory.state`, but the boot-time Diamond
+  override above takes priority over that persisted value.
