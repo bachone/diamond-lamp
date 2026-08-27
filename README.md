@@ -77,61 +77,51 @@ sudo systemctl status unicorn-lamp.service
 
 1. Open the **Home** app on your iPhone (same Wi-Fi network as the Pi).
 2. Tap **+** → **Add Accessory** → **More options...**
-3. "Diamond Lamp" should appear. Tap it, enter the setup code from the
-   logs (`sudo journalctl -u unicorn-lamp -n 50`), and finish setup.
-4. In the accessory's settings, add it to **Favorites** so it shows up
-   in Control Center.
+3. "Diamond Lamp Bridge" should appear. Tap it, enter the setup code from
+   the logs (`sudo journalctl -u unicorn-lamp -n 50`), and finish setup.
+4. Pairing the bridge adds the "Diamond Lamp" light plus five scene
+   switches — Diamond, Redstone, Emerald, Lapis, and Gold. Add whichever
+   ones you want to **Favorites** (the lamp itself for manual on/off, the
+   switches for one-tap ore colors).
 
-> If you'd previously paired the bridge version (with separate scene
-> switches), remove that old "Diamond Lamp Bridge" pairing from Home
-> first, and delete `/var/lib/unicorn-lamp/accessory.state` on the Pi
-> before starting the service again — otherwise HomeKit gets confused
-> about the accessory's identity.
+> If you'd previously paired the single-accessory version (no
+> switches), remove that old "Diamond Lamp" pairing from Home first, and
+> delete `/var/lib/unicorn-lamp/accessory.state` on the Pi before
+> starting the service again — otherwise HomeKit gets confused about the
+> accessory's identity.
 
 ## 8. Get it into Control Center
 
-With it marked as a Favorite, it'll appear in the Home tile in iOS
-Control Center. Press and hold that tile to get quick on/off plus a full
-color wheel for the lamp — no need to open the Home app or use Siri.
+Anything marked as a Favorite appears in the Home tile in iOS Control
+Center. Press and hold that tile:
+- The **lamp** gives you quick on/off plus a full color wheel (handy for
+  brightness or a rough one-off color, but not for precisely repeating
+  an exact shade — that's what the scene switches are for).
+- Each **scene switch**, if favorited, appears as its own quick-tap
+  tile — tapping it applies that preset to the lamp and then resets
+  itself off, so it always reads as "ready to trigger" rather than "on".
 
-## Ore color presets, done right
+## Scenes
 
-Earlier this project tried presets as separate HomeKit Switch
-accessories, but Switches always require opening the accessory and
-toggling it — clunky. The better fit is HomeKit's native **Scenes**
-feature: a one-tap tile, right on the Home screen or in Control Center,
-that snapshots an accessory's state. No drilling in, no toggle to reset.
+Presets live in the `SCENES` dict near the top of `unicorn_lamp.py` as
+`(hue, saturation, brightness)` tuples — edit values or add more entries
+there, then restart the service:
 
-To set one up:
+```
+sudo systemctl restart unicorn-lamp.service
+```
 
-1. In the Home app, tap the Diamond Lamp tile and use the color wheel +
-   brightness slider to dial in a color (see the table below for a
-   starting point — hue is the wheel position, saturation is how far
-   from center, brightness is the slider).
-2. Tap **Done**, then from the Home app's main screen tap **+** → **Add
-   Scene** (or, on newer versions, **+** → **Scene**).
-3. Choose **Custom**, select the Diamond Lamp, and Home will offer to
-   capture its *current* state — so set the color first (step 1), then
-   create the scene right after.
-4. Name it after the ore (e.g. "Diamond Ore") and save.
-5. Repeat per ore. Each saved Scene becomes its own one-tap tile you can
-   favorite for Control Center, exactly like a real accessory.
+Kept deliberately minimal — five ores:
+- **Diamond Ore** — icy cyan-blue, full brightness
+- **Redstone Ore** — deep red
+- **Emerald Ore** — rich green
+- **Lapis Ore** — dark blue
+- **Gold Ore** — warm yellow-gold
 
-Approximate color targets (hue / saturation / brightness — the Home
-app's color wheel doesn't show raw numbers, but hue is roughly the
-angle around the wheel and saturation is distance from center):
-
-| Ore | Hue | Saturation | Brightness | Feel |
-|---|---|---|---|---|
-| Diamond Ore | 190° | 55% | 100% | icy cyan-blue |
-| Emerald Ore | 140° | 75% | 90% | rich green |
-| Gold Ore | 45° | 80% | 90% | warm yellow-gold |
-| Redstone Ore | 355° | 90% | 90% | deep red |
-| Lapis Ore | 222° | 85% | 85% | dark blue |
-| Copper Ore | 25° | 65% | 80% | burnt orange |
-| Iron Ore | 30° | 20% | 75% | pale peach/tan |
-| Coal Ore | 0° | 0% | 12% | near-black, dim |
-| Night Light | 30° | 60% | 12% | dim warm amber |
+Note: adding or removing entries from `SCENES` changes how many
+accessories the bridge exposes, which HomeKit doesn't always handle
+gracefully on existing pairings. If accessories go missing or duplicate
+in the Home app after an edit, remove the bridge from Home and re-pair.
 
 ## Notes
 
