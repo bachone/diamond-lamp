@@ -1,0 +1,15 @@
+[Unit]
+Description=Unicorn HAT HomeKit Lamp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/unicorn-lamp
+ExecStart=/var/unicorn-lamp/venv/bin/python3 /var/unicorn-lamp/unicorn_lamp.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
